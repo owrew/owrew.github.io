@@ -15,12 +15,8 @@
 <meta name="twitter:title" content="Awais Rafaqat — Full-Stack Developer">
 <meta name="twitter:description" content="IT student and full-stack developer building TypeScript systems, Arabic-first RTL applications, and document-automation pipelines.">
 
-<!--
-  GOOGLE SEARCH CONSOLE VERIFICATION
-  Paste the meta tag Search Console gives you on the line directly below this comment, then commit.
-  It looks like: <meta name="google-site-verification" content="..." />
--->
 <meta name="google-site-verification" content="CHWCKGfBibjXmlO5mWn9R748FMWFwy2BP-hmViAE6l4" />
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -38,12 +34,22 @@
   }
 
   *{margin:0;padding:0;box-sizing:border-box;}
-
   html{scroll-behavior:smooth;}
+
   @media (prefers-reduced-motion: reduce){
     html{scroll-behavior:auto;}
-    *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+    *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important;}
   }
+
+  ::selection{background:var(--signal); color:var(--void);}
+
+  ::-webkit-scrollbar{width:10px;}
+  ::-webkit-scrollbar-track{background:var(--void);}
+  ::-webkit-scrollbar-thumb{background:var(--line); border-radius:6px;}
+  ::-webkit-scrollbar-thumb:hover{background:var(--signal);}
+  html{scrollbar-color:var(--line) var(--void);}
+
+  a:focus-visible, button:focus-visible{outline:2px solid var(--signal); outline-offset:3px; border-radius:2px;}
 
   body{
     background:var(--void);
@@ -57,6 +63,7 @@
     background-attachment:fixed;
     background-position:center;
     position:relative;
+    overflow-x:hidden;
   }
   body::before{
     content:"";
@@ -65,6 +72,16 @@
     background:radial-gradient(ellipse 80% 60% at 50% 0%, rgba(13,19,33,0.2), var(--void) 70%);
     pointer-events:none;
     z-index:0;
+  }
+  .grain{
+    position:fixed; inset:0; z-index:50; pointer-events:none;
+    opacity:0.035; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .scroll-progress{
+    position:fixed; top:0; left:0; height:3px; width:0%;
+    background:var(--signal); z-index:100;
   }
 
   .wrap{max-width:880px;margin:0 auto;padding:0 24px;position:relative;z-index:1;}
@@ -88,11 +105,20 @@
   .navlinks a{
     color:var(--muted); text-decoration:none; font-size:14px;
     font-family:'IBM Plex Mono', monospace;
-    transition:color 0.15s ease;
+    transition:color 0.2s ease;
+    position:relative;
+    padding-bottom:2px;
+  }
+  .navlinks a::after{
+    content:""; position:absolute; left:0; bottom:-3px;
+    width:0; height:1px; background:var(--signal);
+    transition:width 0.25s ease;
   }
   .navlinks a:hover, .navlinks a:focus-visible{color:var(--signal);}
+  .navlinks a.active{color:var(--signal);}
+  .navlinks a.active::after, .navlinks a:hover::after{width:100%;}
 
-  section{padding:88px 0;}
+  section{padding:88px 0; scroll-margin-top:80px;}
   section:first-of-type{padding-top:72px;}
 
   .eyebrow{
@@ -116,6 +142,21 @@
     margin-top:10px; direction:rtl;
   }
 
+  #top{position:relative;}
+  .hero-graphic{
+    position:absolute; top:-40px; right:-60px; width:440px; height:440px;
+    z-index:0; pointer-events:none; opacity:0.6;
+  }
+  .hero-content{position:relative; z-index:1;}
+  @media (max-width:900px){ .hero-graphic{display:none;} }
+
+  .schema-node{fill:var(--slate); stroke:var(--signal); stroke-opacity:0.55; stroke-width:1.5;
+    opacity:0; transition:opacity 0.5s ease;}
+  .schema-node.is-visible{opacity:1;}
+  .schema-node.hub{fill:var(--signal); fill-opacity:0.7; animation:nodePulse 2.6s ease-in-out infinite;}
+  @keyframes nodePulse{0%,100%{opacity:0.7;} 50%{opacity:1;}}
+  .schema-line{stroke:var(--signal); stroke-opacity:0.32; stroke-width:1.3; fill:none;}
+
   .readout{
     margin-top:36px;
     background:var(--slate);
@@ -125,14 +166,26 @@
     max-width:460px;
   }
   .readout-row{
-    display:flex; gap:14px;
+    display:flex; gap:14px; align-items:baseline;
     font-family:'IBM Plex Mono', monospace;
     font-size:13.5px;
     padding:4px 0;
+    min-height:20px;
   }
-  .readout-row .key{color:var(--muted); min-width:88px;}
+  .readout-row .key{color:var(--muted); min-width:88px; flex-shrink:0;}
   .readout-row .val{color:var(--ink);}
   .readout-row .val.status{color:var(--signal);}
+  .status-dot{
+    display:inline-block; width:7px; height:7px; border-radius:50%;
+    background:var(--signal); margin-right:7px;
+    animation:dotPulse 1.8s ease-in-out infinite;
+  }
+  @keyframes dotPulse{0%,100%{opacity:0.4; box-shadow:0 0 0 0 rgba(63,167,150,0.5);} 50%{opacity:1; box-shadow:0 0 0 4px rgba(63,167,150,0);}}
+  .type-cursor{
+    display:inline-block; color:var(--signal); font-family:'IBM Plex Mono', monospace;
+    animation:blink 1s step-start infinite;
+  }
+  @keyframes blink{50%{opacity:0;}}
 
   .cta-row{margin-top:34px; display:flex; gap:14px; flex-wrap:wrap;}
   .btn{
@@ -142,10 +195,10 @@
     border-radius:5px;
     text-decoration:none;
     display:inline-flex; align-items:center; gap:8px;
-    transition:transform 0.15s ease, background 0.15s ease;
+    transition:transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    will-change:transform;
   }
   .btn-primary{background:var(--signal); color:#0d1321; font-weight:500;}
-  .btn-primary:hover{transform:translateY(-1px);}
   .btn-ghost{border:1px solid var(--line); color:var(--parchment);}
   .btn-ghost:hover{border-color:var(--signal); color:var(--signal);}
 
@@ -167,7 +220,9 @@
     color:var(--parchment);
     padding:6px 12px;
     border-radius:4px;
+    transition:transform 0.2s ease, border-color 0.2s ease;
   }
+  .chip:hover{transform:translateY(-2px); border-color:var(--signal);}
 
   .stack-group{margin-bottom:26px;}
   .stack-label{
@@ -176,14 +231,18 @@
     color:var(--muted); margin-bottom:10px;
   }
 
-  .work-card{
+  .work-card, .contact-card{
     background:var(--slate);
     border:1px solid var(--line);
     border-radius:8px;
+    transition:transform 0.25s ease, border-color 0.25s ease;
+  }
+  .work-card{
     padding:26px 28px;
     display:flex; justify-content:space-between; align-items:center;
     flex-wrap:wrap; gap:16px;
   }
+  .work-card:hover, .contact-card:hover{transform:translateY(-3px); border-color:var(--signal);}
   .work-card h3{
     font-family:'Space Grotesk', sans-serif;
     font-size:20px; color:var(--parchment); margin-bottom:4px;
@@ -196,16 +255,20 @@
   }
   .work-card a:hover{text-decoration:underline;}
 
+  .contact-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px;}
+  .contact-card{
+    padding:18px 20px;
+    display:flex; justify-content:space-between; align-items:center;
+    text-decoration:none; color:var(--parchment);
+    font-family:'IBM Plex Mono', monospace; font-size:14px;
+  }
+  .contact-card .arrow{color:var(--signal); transition:transform 0.25s ease;}
+  .contact-card:hover .arrow{transform:translateX(4px);}
+
   footer{
     border-top:1px solid var(--line);
-    padding:40px 0 60px;
+    padding:36px 0 60px;
   }
-  .footer-links{display:flex; gap:24px; flex-wrap:wrap; margin-bottom:18px;}
-  .footer-links a{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:14px; color:var(--muted); text-decoration:none;
-  }
-  .footer-links a:hover{color:var(--signal);}
   .fineprint{font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--muted);}
 
   @keyframes riseIn{
@@ -213,9 +276,30 @@
     to{opacity:1; transform:translateY(0);}
   }
   .hero-anim{animation:riseIn 0.7s ease-out both;}
+
+  .reveal{opacity:0; transform:translateY(18px); transition:opacity 0.6s ease, transform 0.6s ease;}
+  .reveal.is-visible{opacity:1; transform:translateY(0);}
+
+  .chip-row.reveal > .chip{opacity:0; transform:translateY(10px); transition:opacity 0.45s ease, transform 0.45s ease;}
+  .chip-row.reveal.is-visible > .chip{opacity:1; transform:translateY(0);}
+  .chip-row.reveal.is-visible > .chip:nth-child(1){transition-delay:0ms;}
+  .chip-row.reveal.is-visible > .chip:nth-child(2){transition-delay:60ms;}
+  .chip-row.reveal.is-visible > .chip:nth-child(3){transition-delay:120ms;}
+  .chip-row.reveal.is-visible > .chip:nth-child(4){transition-delay:180ms;}
+  .chip-row.reveal.is-visible > .chip:nth-child(5){transition-delay:240ms;}
+  .chip-row.reveal.is-visible > .chip:nth-child(6){transition-delay:300ms;}
+
+  @media (max-width:600px){
+    .navlinks{gap:16px;}
+    .navlinks a{font-size:12px;}
+    section{padding:64px 0;}
+  }
 </style>
 </head>
 <body>
+
+<div class="grain"></div>
+<div class="scroll-progress" id="scrollProgress"></div>
 
 <header>
   <nav>
@@ -232,16 +316,36 @@
 <main class="wrap">
 
   <section id="top">
-    <div class="hero-anim">
+    <svg class="hero-graphic" viewBox="0 0 420 420" aria-hidden="true">
+      <line class="schema-line" x1="220" y1="190" x2="60" y2="80"/>
+      <line class="schema-line" x1="220" y1="190" x2="200" y2="40"/>
+      <line class="schema-line" x1="220" y1="190" x2="340" y2="100"/>
+      <line class="schema-line" x1="220" y1="190" x2="380" y2="220"/>
+      <line class="schema-line" x1="220" y1="190" x2="260" y2="320"/>
+      <line class="schema-line" x1="220" y1="190" x2="120" y2="300"/>
+      <line class="schema-line" x1="220" y1="190" x2="40" y2="200"/>
+      <line class="schema-line" x1="60" y1="80" x2="200" y2="40"/>
+      <line class="schema-line" x1="340" y1="100" x2="380" y2="220"/>
+      <line class="schema-line" x1="120" y1="300" x2="260" y2="320"/>
+      <circle class="schema-node" cx="60" cy="80" r="4"/>
+      <circle class="schema-node" cx="200" cy="40" r="4"/>
+      <circle class="schema-node" cx="340" cy="100" r="4"/>
+      <circle class="schema-node" cx="380" cy="220" r="4"/>
+      <circle class="schema-node" cx="260" cy="320" r="4"/>
+      <circle class="schema-node" cx="120" cy="300" r="4"/>
+      <circle class="schema-node" cx="40" cy="200" r="4"/>
+      <circle class="schema-node hub" cx="220" cy="190" r="7"/>
+    </svg>
+
+    <div class="hero-anim hero-content">
       <span class="eyebrow">IT student · Oman</span>
       <h1>Awais<br>Rafaqat</h1>
-      <p class="arabic-caption">أويس رفاقت — مطوّر برمجيات</p>
 
-      <div class="readout">
-        <div class="readout-row"><span class="key">role</span><span class="val">full-stack developer</span></div>
-        <div class="readout-row"><span class="key">focus</span><span class="val">automation, Arabic-first web apps</span></div>
-        <div class="readout-row"><span class="key">languages</span><span class="val">en · ar · ur</span></div>
-        <div class="readout-row"><span class="key">status</span><span class="val status">open to internship opportunities</span></div>
+      <div class="readout" id="readout">
+        <div class="readout-row"><span class="key">role</span><span class="val" data-text="full-stack developer"></span></div>
+        <div class="readout-row"><span class="key">focus</span><span class="val" data-text="automation, Arabic-first web apps"></span></div>
+        <div class="readout-row"><span class="key">languages</span><span class="val" data-text="en · ar · ur"></span></div>
+        <div class="readout-row"><span class="key">status</span><span class="val status"><span class="status-dot"></span><span class="status-text" data-text="open to internship opportunities"></span></span></div>
       </div>
 
       <div class="cta-row">
@@ -252,14 +356,14 @@
   </section>
 
   <section id="about">
-    <h2><span class="idx">01 /</span> About</h2>
-    <p class="lede">
+    <h2 class="reveal"><span class="idx">01 /</span> About</h2>
+    <p class="lede reveal">
       I build full-stack systems end to end — schema to UI to deployment — with TypeScript as
       the common thread. A good part of that work is document-automation pipelines that turn raw
       data into branded Arabic PDF and Word output at scale. Lately that's expanded into directing
       AI coding agents through multi-step builds rather than writing every line by hand.
     </p>
-    <div class="chip-row">
+    <div class="chip-row reveal">
       <span class="chip">IELTS 7.5 · C1</span>
       <span class="chip">English</span>
       <span class="chip">Arabic</span>
@@ -268,11 +372,11 @@
   </section>
 
   <section id="stack">
-    <h2><span class="idx">02 /</span> Stack</h2>
+    <h2 class="reveal"><span class="idx">02 /</span> Stack</h2>
 
     <div class="stack-group">
       <div class="stack-label">Languages</div>
-      <div class="chip-row">
+      <div class="chip-row reveal">
         <span class="chip">TypeScript</span><span class="chip">JavaScript</span>
         <span class="chip">Python</span><span class="chip">SQL</span><span class="chip">LaTeX</span>
       </div>
@@ -280,7 +384,7 @@
 
     <div class="stack-group">
       <div class="stack-label">Frontend</div>
-      <div class="chip-row">
+      <div class="chip-row reveal">
         <span class="chip">React 19</span><span class="chip">Tailwind CSS</span>
         <span class="chip">Vite</span><span class="chip">Radix UI</span>
       </div>
@@ -288,7 +392,7 @@
 
     <div class="stack-group">
       <div class="stack-label">Backend</div>
-      <div class="chip-row">
+      <div class="chip-row reveal">
         <span class="chip">Node.js</span><span class="chip">Express</span>
         <span class="chip">tRPC</span><span class="chip">Drizzle ORM</span>
       </div>
@@ -296,29 +400,29 @@
 
     <div class="stack-group">
       <div class="stack-label">Databases</div>
-      <div class="chip-row">
+      <div class="chip-row reveal">
         <span class="chip">MySQL</span><span class="chip">PostgreSQL</span>
       </div>
     </div>
 
     <div class="stack-group">
       <div class="stack-label">Automation &amp; Documents</div>
-      <div class="chip-row">
+      <div class="chip-row reveal">
         <span class="chip">Playwright</span><span class="chip">python-docx</span>
       </div>
     </div>
 
     <div class="stack-group">
       <div class="stack-label">Tooling</div>
-      <div class="chip-row">
+      <div class="chip-row reveal">
         <span class="chip">Docker</span><span class="chip">Railway</span><span class="chip">Git</span>
       </div>
     </div>
   </section>
 
   <section id="work">
-    <h2><span class="idx">03 /</span> Work</h2>
-    <div class="work-card">
+    <h2 class="reveal"><span class="idx">03 /</span> Work</h2>
+    <div class="work-card reveal">
       <div>
         <h3>ConvoVault</h3>
         <p>Public repository</p>
@@ -327,18 +431,141 @@
     </div>
   </section>
 
+  <section id="contact">
+    <h2 class="reveal"><span class="idx">04 /</span> Contact</h2>
+    <div class="contact-grid reveal">
+      <a class="contact-card" href="https://github.com/owrew" target="_blank" rel="noopener"><span>GitHub</span><span class="arrow">→</span></a>
+      <a class="contact-card" href="https://www.linkedin.com/in/awaisalirafaqat/" target="_blank" rel="noopener"><span>LinkedIn</span><span class="arrow">→</span></a>
+      <a class="contact-card" href="https://www.instagram.com/ow4rw/" target="_blank" rel="noopener"><span>Instagram</span><span class="arrow">→</span></a>
+    </div>
+  </section>
+
 </main>
 
 <footer>
   <div class="wrap">
-    <div class="footer-links">
-      <a href="https://github.com/owrew" target="_blank" rel="noopener">GitHub</a>
-      <a href="https://www.linkedin.com/in/awaisalirafaqat/" target="_blank" rel="noopener">LinkedIn</a>
-      <a href="https://www.instagram.com/ow4rw/" target="_blank" rel="noopener">Instagram</a>
-    </div>
-    <p class="fineprint">Awais Rafaqat · owrew.github.io</p>
+    <p class="fineprint">Awais Rafaqat · owrew.github.io · <span id="year"></span></p>
   </div>
 </footer>
+
+<script>
+(function(){
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Footer year
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // Scroll progress bar
+  var bar = document.getElementById('scrollProgress');
+  function updateBar(){
+    var h = document.documentElement;
+    var scrolled = (h.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
+    bar.style.width = (scrolled || 0) + '%';
+  }
+  document.addEventListener('scroll', updateBar, {passive:true});
+  updateBar();
+
+  // Scroll reveal
+  var revealEls = document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          entry.target.classList.add('is-visible');
+          io.unobserve(entry.target);
+        }
+      });
+    }, {threshold:0.15});
+    revealEls.forEach(function(el){ io.observe(el); });
+  } else {
+    revealEls.forEach(function(el){ el.classList.add('is-visible'); });
+  }
+
+  // Nav scrollspy
+  var sections = document.querySelectorAll('main section[id]');
+  var navLinks = document.querySelectorAll('.navlinks a');
+  if('IntersectionObserver' in window){
+    var spy = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          var id = entry.target.getAttribute('id');
+          navLinks.forEach(function(l){ l.classList.remove('active'); });
+          var link = document.querySelector('.navlinks a[href="#' + id + '"]');
+          if(link) link.classList.add('active');
+        }
+      });
+    }, {rootMargin:'-40% 0px -50% 0px'});
+    sections.forEach(function(s){ spy.observe(s); });
+  }
+
+  // Schema graphic: draw-on lines + fade-in nodes
+  var lines = document.querySelectorAll('.schema-line');
+  var nodes = document.querySelectorAll('.schema-node');
+  lines.forEach(function(line, i){
+    var len = line.getTotalLength();
+    line.style.strokeDasharray = len;
+    line.style.strokeDashoffset = reduceMotion ? 0 : len;
+    if(!reduceMotion){
+      line.style.transition = 'stroke-dashoffset 1.1s ease ' + (0.12 * i) + 's';
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){ line.style.strokeDashoffset = 0; });
+      });
+    }
+  });
+  nodes.forEach(function(node, i){
+    if(reduceMotion){
+      node.classList.add('is-visible');
+    } else {
+      setTimeout(function(){ node.classList.add('is-visible'); }, 150 + i * 90);
+    }
+  });
+
+  // Terminal-style boot readout
+  var rows = document.querySelectorAll('.readout-row .val[data-text], .status-text[data-text]');
+  var cursor = document.createElement('span');
+  cursor.className = 'type-cursor';
+  cursor.textContent = '▍';
+
+  if(reduceMotion){
+    rows.forEach(function(el){ el.textContent = el.getAttribute('data-text'); });
+  } else {
+    var r = 0;
+    function typeRow(){
+      if(r >= rows.length) return;
+      var el = rows[r];
+      el.parentNode.appendChild(cursor);
+      var text = el.getAttribute('data-text');
+      var c = 0;
+      function step(){
+        if(c <= text.length){
+          el.textContent = text.slice(0, c);
+          c++;
+          setTimeout(step, 20);
+        } else {
+          if(r < rows.length - 1){ cursor.remove(); }
+          r++;
+          setTimeout(typeRow, 200);
+        }
+      }
+      step();
+    }
+    setTimeout(typeRow, 600);
+  }
+
+  // Magnetic buttons
+  if(!reduceMotion){
+    document.querySelectorAll('.btn').forEach(function(btn){
+      btn.addEventListener('mousemove', function(e){
+        var rect = btn.getBoundingClientRect();
+        var x = e.clientX - rect.left - rect.width / 2;
+        var y = e.clientY - rect.top - rect.height / 2;
+        btn.style.transform = 'translate(' + (x * 0.15) + 'px,' + (y * 0.3) + 'px)';
+      });
+      btn.addEventListener('mouseleave', function(){ btn.style.transform = ''; });
+    });
+  }
+})();
+</script>
 
 </body>
 </html>
